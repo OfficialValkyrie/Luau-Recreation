@@ -11,7 +11,7 @@ We have a Simple Lua Version of it in hand here, which I had to recreate using t
 --]]
 
 local proxy = {}
-newproxy = newproxy or function(bool)
+local newproxy = newproxy or function(bool)
     if bool then
 		setmetatable(proxy, {
 			__index = {}
@@ -20,12 +20,15 @@ newproxy = newproxy or function(bool)
     return proxy
 end
 
-function type(a)
+local function type(a)
 	local s, e = pcall(function()
 		return a.Archivable and (string.match(tostring(a), "^(.-):") == nil)
 	end)
 
 	local _nil = ((a == nil) and "nil")													 -- Checks if 'a' is nil, returns "nil" if it's nil.
+	local CatalogSearchParams = ((tostring(a):match("CatalogSearchParams{%s*SearchKeyword=%w*,%s*CategoryFilter=%w*,%s*SortType=%w*,%s*SortAggregation=%w*,%s*SalesTypeFilter=%w*,%s*CreatorName=%w*,%s*Limit=%w*,%s*BundleTypes=%w*,%s*AssetTypes=%w*,%s*IncludeOffSale=%w*}") ~= nil) and "CatalogSearchParams")
+	local Enum = ((a == Enum) and (a ~= nil) and "Enums")
+	local Random = (tostring(a) == "Random" and "Random")
 	local Instance = ((s and e ~= nil) and "Instance")									 -- Checks if a.Archivable and the check for if it's a: function, table or thread returned nil. It then checks if 'e' is not nil, 'e' is error or the message it returned, 'e' should return true, since it checks for Archivable and if it's a: function, table or thread. (Archivable is a boolean, if I used ClassName it would return "string" for an Instance.)
 	local userdata = ((a == newproxy(true)) and "userdata")								 -- Checks if 'a' is similar to a new proxy.
 	local coffee = (string.match(tostring(a), "^(.-):"))								 -- Checks if it's a: function, table or thread.
@@ -34,7 +37,7 @@ function type(a)
 	local string = ((((not tostring(a) == _nil) and (not tonumber(a)))) and "string")	 -- Checks if not tostring 'a' is similar to nil, if it's not then it checks if tonumber is not possible on 'a'.
 	local unknown = "Unknown"															 -- Returns "Unknown" if it's nil.
 
-	return Instance or userdata or coffee or boolean or number or string or unknown
+	return Random or CatalogSearchParams or Enum or Instance or userdata or coffee or boolean or number or string or unknown
 end
 
 function Function() end 
@@ -44,7 +47,12 @@ local Userdata = newproxy and newproxy(true)
 local Boolean = true
 local Number = 1
 local String = "Hello World!"
+----------------------------------------------------------------------
 local NewInstance = Instance and Instance.new and Instance.new("Part")
+local NewEnum = Enum--.PartType
+local SharedTable = SharedTable and SharedTable.new and SharedTable.new({"a", "b", "c"})
+local CatalogSearchParams = CatalogSearchParams and CatalogSearchParams.new and CatalogSearchParams.new()
+local Random = Random and Random.new and Random.new(math.random(2147483647))
 
 print(type(Function)) -- Output: function
 
@@ -62,3 +70,10 @@ print(type(String)) -- Output: string
 
 print(type(NewInstance)) -- Output: Instance
 
+print(type(NewEnum)) -- Output: Enums
+
+print(type(SharedTable)) -- Output: SharedTable
+
+print(type(CatalogSearchParams)) -- Output: CatalogSearchParams
+
+print(type(Random)) -- Output: Random
